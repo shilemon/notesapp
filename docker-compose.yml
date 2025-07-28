@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    container_name: django-app
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
