@@ -35,6 +35,133 @@ cd mynotes
 npm install
 ```
 7. Run the app
+
+
+
+
+
+# 🗒️ NotesApp - Dockerized Django with Nginx
+
+This project is a simple Django application containerized with Docker and served via Nginx. It demonstrates how to use Docker Compose to orchestrate both a Django app and an Nginx reverse proxy.
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── Dockerfile               # Builds the Django app container
+├── docker-compose.yml       # Defines the multi-container setup
+├── nginx.conf               # Nginx reverse proxy configuration
+├── requirements.txt         # Python dependencies
+├── db.sqlite3               # SQLite database (for dev use)
+├── manage.py                # Django management script
+└── notesapp/                # Your Django project directory
+```
+
+---
+
+## ⚙️ How It Works
+
+### Services
+
+- **web**: Django app running on port `8000`
+- **nginx**: Nginx reverse proxy forwarding traffic from port `8080` to the Django app
+
+---
+
+## 🧪 Running the Project using Docker ,docker-compose.yml file and Nginx.conf
+
+
+### 📦 2. Build and start the services
+
+```bash
+docker-compose up --build
+```
+
+### 🌐 3. Access the application
+
+Open your browser and visit:  
+**http://localhost:8080**
+
+---
+
+## 🧱 Docker Configuration
+
+### 🐳 Dockerfile
+
+```dockerfile
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
+
+COPY . /app
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+```
+
+### 🧩 docker-compose.yml
+
+```yaml
+services:
+  web:
+    build: .
+    container_name: django-app
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+```
+
+### 🌐 nginx.conf
+
+```nginx
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+---
+
+## 📝 Notes
+
+- Make sure `nginx.conf` is in the root directory and correctly mapped in `docker-compose.yml`.
+- You can change the Nginx port from `8080` to anything you like (just update `docker-compose.yml`).
+- Don't forget to migrate and create a superuser if needed:
+
+```bash
+docker exec -it django-app python manage.py migrate
+docker exec -it django-app python manage.py createsuperuser
+```
+
+---
+
+## 📜 License
+
+This project is for educational/demo purposes. Modify and use it freely.
+
+
+<img width="1913" height="963" alt="image" src="https://github.com/user-attachments/assets/0275aa61-d045-43cf-ac45-93548fd8198b" />
+
+
 ```
 npm start
 ```
